@@ -2,10 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"log"
+	"time"
 )
 
 func main() {
@@ -32,4 +36,24 @@ func newClient(profile string) (*dynamodb.Client, error) {
 
 	c := dynamodb.NewFromConfig(cfg)
 	return c, nil
+}
+
+func createDynamoDBTable(c *dynamodb.Client,
+	tableName string, input *dynamodb.CreateTableInput) error {
+	var tableDesc *types.TableDescription
+	table, err := c.CreateTable(context.TODO(), input)
+	if err != nil {
+		log.Printf("Failed to create table with %v with error: %v\n", tableName, err)
+	} else {
+		waiter := dynamodb.NewTableExistsWaiter(c)
+		err = waiter.Wait(context.TODO(), &dynamodb.DescribeTableInput{
+			TableName: aws.String(tableName)}, 5*time.Minute)
+		if err != nil {
+			log.Printf("Failed to wait on create table %v with error: %v\n", tableName, err)
+		}
+		tableDesc = table.TableDescription
+	}
+
+	fmt.Println(tableDesc)
+	return err
 }
