@@ -3,17 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/94danielbrown/go-dynamodb/initializers"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"log"
+	"os"
 	"time"
 )
 
 func main() {
-
+	initializers.LoadEnvVariables()
+	fmt.Println(os.Getenv("AWS_REGION"))
 }
 
 func newClient(profile string) (*dynamodb.Client, error) {
