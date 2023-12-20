@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/94danielbrown/go-dynamodb/infrastructure"
 	"github.com/94danielbrown/go-dynamodb/initializers"
+	"github.com/94danielbrown/go-dynamodb/utils"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -17,6 +19,15 @@ import (
 func main() {
 	initializers.LoadEnvVariables()
 	fmt.Println(os.Getenv("AWS_REGION"))
+
+	config := infrastructure.NewAwsConfig()
+	client := infrastructure.NewDynamoDBClient(config)
+
+	output, err := utils.ListTables(client)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(output)
 }
 
 func newClient(profile string) (*dynamodb.Client, error) {

@@ -16,3 +16,12 @@ func DescribeTable(client *dynamodb.Client, tableName string) (*dynamodb.Describ
 
 	return table, err
 }
+
+func ListTables(client *dynamodb.Client) (*dynamodb.ListTablesOutput, error) {
+	tables, err := client.ListTables(
+		context.TODO(),
+		&dynamodb.ListTablesInput{},
+	)
+
+	return tables, err
+}
