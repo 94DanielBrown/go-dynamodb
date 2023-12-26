@@ -11,17 +11,45 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"log"
-	"os"
 	"time"
 )
 
 func main() {
 	initializers.LoadEnvVariables()
-	fmt.Println(os.Getenv("AWS_REGION"))
 
-	config := infrastructure.NewAwsConfig()
+	config, err := infrastructure.NewAwsConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	client := infrastructure.NewDynamoDBClient(config)
+
+	s3Client := s3.NewFromConfig(config)
+	bucketName := "cf-templates-15u92x5udtnvy-eu-west-1"
+	resp, err := s3Client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
+		Bucket: aws.String(bucketName),
+	})
+	if err != nil {
+		fmt.Println("Error listing objects:", err)
+		return
+	}
+
+	fmt.Println("Objects in the bucket:")
+	for _, obj := range resp.Contents {
+		fmt.Println(*obj.Key)
+	}
+	table, err := utils.DescribeTable(client, "Messages")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf(
+		"Table ID: %s \nTable Name: %s\n\n",
+		*table.Table.TableId,
+		*table.Table.TableName,
+	)
 
 	output, err := utils.ListTables(client)
 	if err != nil {
