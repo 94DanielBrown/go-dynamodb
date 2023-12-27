@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/94danielbrown/go-dynamodb/infrastructure"
 	"github.com/94danielbrown/go-dynamodb/initializers"
+	"github.com/94danielbrown/go-dynamodb/services"
 	"github.com/94danielbrown/go-dynamodb/utils"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -12,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/google/uuid"
 	"log"
 	"time"
 )
@@ -52,7 +54,7 @@ func main() {
 	fmt.Println(tableNames)
 
 	//Describe Messages table
-	table, err := utils.DescribeTable(client, "Messages")
+	table, err := utils.DescribeTable(client, "Chats")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -62,6 +64,23 @@ func main() {
 		*table.Table.TableId,
 		*table.Table.TableName,
 	)
+
+	chatId := uuid.New()
+	chatData := services.ChatDataType{
+		UserID:    "dbebf8e1-a375-4f9b-af6d-41f057e7b49b",
+		ChatID:    chatId.String(),
+		Title:     "Some nonsense chatting",
+		CreatedAt: int(time.Now().Unix()),
+	}
+
+	_, err = services.Create(client, chatData)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println("New Chat Created.")
+
 }
 
 func newClient(profile string) (*dynamodb.Client, error) {
