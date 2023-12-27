@@ -40,6 +40,18 @@ func main() {
 	for _, obj := range resp.Contents {
 		fmt.Println(*obj.Key)
 	}
+
+	// List tables
+	var tableNames []string
+	tables, err := utils.ListTables(client)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		tableNames = tables.TableNames
+	}
+	fmt.Println(tableNames)
+
+	//Describe Messages table
 	table, err := utils.DescribeTable(client, "Messages")
 	if err != nil {
 		fmt.Println(err)
@@ -50,12 +62,6 @@ func main() {
 		*table.Table.TableId,
 		*table.Table.TableName,
 	)
-
-	output, err := utils.ListTables(client)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(output)
 }
 
 func newClient(profile string) (*dynamodb.Client, error) {

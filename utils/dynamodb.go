@@ -7,6 +7,8 @@ import (
 )
 
 func DescribeTable(client *dynamodb.Client, tableName string) (*dynamodb.DescribeTableOutput, error) {
+
+	// get table information
 	table, err := client.DescribeTable(
 		context.TODO(),
 		&dynamodb.DescribeTableInput{
@@ -14,6 +16,7 @@ func DescribeTable(client *dynamodb.Client, tableName string) (*dynamodb.Describ
 		},
 	)
 
+	// return table and error
 	return table, err
 }
 
